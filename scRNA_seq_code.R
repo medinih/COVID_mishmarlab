@@ -1,4 +1,4 @@
-# This code receives normalized Seurat annotated file: with "severity", "infection" and "celltype" annotations.
+# This code receives normalized Seurat annotated object: with "severity", "infection" and "celltype" annotations.
 # The code compares COVID-19 patients and healthy and all severity levels.
 # output: cell type-specific graphs and differential expression tables.
 
