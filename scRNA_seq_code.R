@@ -204,9 +204,9 @@ celltype_analysis<-function(rds1,mycellstypes,tocountzerogenes,nametoadd){
   mymetadata = ob@meta.data
   
   # initialize lists
-  geneprop = list() ; cellsprop = list() ; genesnum = list() ; cellsnum = list() ; findmarkerslist = list(); findmarkerslist2 = list()
-  qcgraphlist = list() ; maingraphslist = list() ; maingraphslist2 = list() ; maingraphslist_nuc = list()
-  pvaluecompare = list() ; pvaluecompare2 = list() ; myepithel = c() ; mydf = list() ; mydf2 = list()
+  findmarkerslist = list()
+  findmarkerslist2 = list()
+  maingraphslist = list() 
   
   Idents(ob) = "celltype"
   for (celltype in levels(as.factor(ob@meta.data$celltype))){
@@ -238,50 +238,28 @@ celltype_analysis<-function(rds1,mycellstypes,tocountzerogenes,nametoadd){
         totestde = T
         # Differential expression 
         if (totestde){
-          dode(obtmp,celltype,i,ident="severity",nametoadd,pathways_names,pathways) # de of genes' sets
-          dode(obtmp,celltype,i,ident="infection",nametoadd,pathways_names,pathways) # de of genes' sets
+          dode(obtmp,celltype,i,ident="severity",nametoadd,pathways_names,pathways) 
+          dode(obtmp,celltype,i,ident="infection",nametoadd,pathways_names,pathways)
         }
       }
     }
   }
   
-  
+  # write and save graphs and tables:
+
   if (length(findmarkerslist)>0){
     write.xlsx(findmarkerslist,file = paste(nametoadd,i," markers_perm.xlsx"))
   }
   if (length(findmarkerslist2)>0){
     write.xlsx(findmarkerslist2,file = paste(nametoadd,i," markers_perm severity.xlsx"))
   }
-  
-  
-  if (length(pvaluecompare2)>0){
-    write.xlsx(pvaluecompare2, file = paste(nametoadd,i,"mt-zero-cells p-values permutations no-nuc-filter.xlsx"))
-  }
-  # write and save graphs and tables:
-  if(length(geneprop)>0){
-    write.xlsx(geneprop, file = paste(nametoadd,i,"zero cells filter proportions division no nuc filter.xlsx"))
-    write.xlsx(cellsprop, file = paste(nametoadd,i,"zero genes filter proportions division no nuc filter.xlsx"))
-    write.xlsx(genesnum, file = paste(nametoadd,i,"zero genes filter numbers division no nuc filter.xlsx"))
-    write.xlsx(cellsnum, file = paste(nametoadd,i,"zero cells filter numbers division no nuc filter.xlsx"))
-  }
-  
-  printplots<-function(mygraphslist,numr,numc){
-    print(head(mygraphslist))
-    m = 1:length(mygraphslist)
-  }
-  
   if (length(maingraphslist)>0){
-    pdf(paste(nametoadd,"graphs of",i,"zero mtGenes mean expression celltype division MITO no nuc filter.pdf"), height=6, width=20)
+    pdf(paste(nametoadd,"graphs of mtGenes expression.pdf"), height=6, width=20)
     print(marrangeGrob(maingraphslist, nrow=1, ncol=1,top=NULL))
     dev.off()
   }
-  saveRDS(maingraphslist,paste(nametoadd,"maingraphslist.rds"))
-  
-  if (length(qcgraphlist)>0){
-    pdf(paste(nametoadd,"graphs of",i,"zero mtGenes mean expression celltype quality control division no nuc filter.pdf"), height=16, width=24)
-    print(marrangeGrob(qcgraphlist, nrow=4, ncol=4,top=NULL))   
-    dev.off()
-  }
+  # save graphs for any possible changes in ggplot:
+  saveRDS(maingraphslist,paste(nametoadd,"graphs_list.rds"))
   
 }
 
