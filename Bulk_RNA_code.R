@@ -1,4 +1,4 @@
-# This code receives raw matrix (df) with samples (columns) columns and genes (rows) and a metadata file (meta)
+# This code receives raw matrix (df) with samples (columns) and genes (rows) and a metadata file (meta)
 # output: differential expression tables and graphs.
 
 library(reshape2)
