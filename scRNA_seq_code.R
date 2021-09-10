@@ -1,4 +1,6 @@
-# This code receives normalized Seurat annotated object: with "severity", "infection" and "celltype" annotations.
+# This code receives normalized Seurat annotated object: 
+# before running - object should include the following annotations in metadata:
+# "severity" (with levels: "healthy","moderate","severe"), "infection" (with the levels: "healthy","SARS-CoV-2") and "celltype" annotations.
 # The code compares COVID-19 patients and healthy and all severity levels.
 # output: cell type-specific graphs and differential expression tables.
 
@@ -194,7 +196,7 @@ findallmarkerssample_severity <- function(obtmp,n,n.cells,findmarkerslist,cellty
 }
 
 
-celltype_analysis<-function(rds1,mycellstypes,tocountzerogenes,nametoadd){
+celltype_analysis<-function(rds1,mycellstypes,nametoadd,todobox = T,tofindmitomarkers = T,totestde = T){
   # This function iterate per cell type and calls the functions above to create graphs and DE tables.
   
   ob = rds1
@@ -223,20 +225,19 @@ celltype_analysis<-function(rds1,mycellstypes,tocountzerogenes,nametoadd){
         listofmygenes = pathways 
         toadd = pathways_names
         
-        todobox = T
+        # graph
         if (todobox){
           table = cbind(metmp[colnames(tatmp),],t(tatmp[mito.genes,]))
           maingraphslist = do_plot(table,metmp,paste(paste(celltype,"healthy vs covid"),"boxplot"),i,toadd,maingraphslist,celltype)
         }
         
-        tofindmitomarkers = T
+        # Differential expression of mitochondrial genes using permutations - 
         if (tofindmitomarkers){
           findmarkerslist=findallmarkerssample(obtmp,1000,50,findmarkerslist,celltype)
           findmarkerslist2=findallmarkerssample_severity(obtmp,1000,50,findmarkerslist2,celltype)
         }
-        
-        totestde = T
-        # Differential expression 
+         
+        # Differential expression - writes a table for every cell type
         if (totestde){
           dode(obtmp,celltype,i,ident="severity",nametoadd,pathways_names,pathways) 
           dode(obtmp,celltype,i,ident="infection",nametoadd,pathways_names,pathways)
@@ -276,9 +277,8 @@ pathways_names =unlist(lapply(list.files(ad,full.names = F),function(x){x<-strsp
 pathways = lapply(list.files(ad,full.names = T),function(x){x<-as.character(read.table(x,header=T)$gene)})
 mito.genes =  c("MT-ND1",  "MT-ND2",  "MT-ND3",  "MT-ND4",  "MT-CO1",  "MT-CO2",  "MT-CO3",  "MT-CYB",  "MT-ATP6")
 
-rds1 = ob
-i=0
-celltype_analysis(rds1,mycellstypes = levels(as.factor(rds1@meta.data$celltype)),tocountzerogenes=F,nametoadd="") 
+i=0 # number of allowed zeros in mtdna genes per cell.
+celltype_analysis(ob,mycellstypes = levels(as.factor(ob@meta.data$celltype)),nametoadd="") 
 
 ########################################
 
