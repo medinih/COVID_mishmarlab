@@ -10,9 +10,8 @@ library(ggplot2)
 library(openxlsx)
 library(RColorBrewer)
 library(gridExtra)
-library(stringr)
 library(tidyr)
-library(ggpubr)
+
 
 
 ### FUNCTIONS ###
@@ -137,7 +136,6 @@ findallmarkerssample <- function(obtmp,n,n.cells,findmarkerslist,celltype){
   iterdf$group_healthy <- rowSums(dfgroup == "healthy")
   iterdf$group_covid19 <- rowSums(dfgroup == "SARS-CoV-2")
   
-  print(head(iterdf$pval))
   findmarkerslist[[celltype]] = data.frame(gene=mito.genes,adj_pvalue=iterdf$pval, avg_logFC = iterdf$avg_logFC,
   group_healthy = iterdf$group_healthy, group_covid19 = iterdf$group_covid19, cell_type = celltype, dataset = dataset_name)
   return(findmarkerslist)
@@ -177,13 +175,10 @@ findallmarkerssample_severity <- function(obtmp,n,n.cells,findmarkerslist,cellty
       dfgroup[,paste0("x",i)] = toaddgroup
     }	
     nosignum <- rowSums(df[,2:ncol(df)] > 0.05)
-    print("rowsum:")
-    print(nosignum)
     avg_logFC <- rowMeans(dflogfc[,-1])
     pval <- as.numeric(nosignum)/n
     group_healthy <- rowSums(dfgroup == c[1])
     group_p <- rowSums(dfgroup == c[2])
-    print("haha")
     dffinal[,paste0("adj_pvalue ","( ",c[1]," vs ",c[2],")")]=pval
     dffinal[,paste0("avg_logFC ","( ",c[1]," vs ",c[2],")")]=avg_logFC
     dffinal[,paste0("group ",c[1],"( ",c[1]," vs ",c[2],")")]=group_healthy
