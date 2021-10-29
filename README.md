@@ -1,6 +1,6 @@
 # COVID_mishmarlab
-Reproducibility repository accompanying Medini, H., Zirman, A. &amp; Mishmar, D. "Mitochondrial-nuclear gene expression co-regulation is compromised in immune system cells of COVID-19 patients: rewiring towards glycolysis"  iScience (2021).
+Reproducibility repository accompanying Medini, H., Zirman, A. &amp; Mishmar, D. "Immune system cells from COVID-19 patients display compromised mitochondrial-nuclear expression co-regulation and rewiring towards glycolysis"  iScience (2021).
 
-Packages:
-Seurat, reshape2, ggplot2, openxlsx, RColorBrewer, gridExtra, stringr, tidyr, ggpubr, openxlsx, RColorBrewer, DESeq2.
+R Packages:
+Seurat, reshape2, ggplot2, openxlsx, RColorBrewer, gridExtra, tidyr, openxlsx, RColorBrewer, DESeq2.
 
