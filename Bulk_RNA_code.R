@@ -108,18 +108,22 @@ pathways_names =unlist(lapply(list.files(ad,full.names = F),function(x){x<-strsp
 pathways = lapply(list.files(ad,full.names = T),function(x){x<-as.character(read.table(x,header=T)$gene)})
 
 # upload files
-df<- readRDS("df.rds")#read.table("raw_df.txt",header=TRUE)
-info = readRDS("meta.rds")
+df<- readRDS("example_data/df.rds")#read.table("raw_df.txt",header=TRUE)
+info = readRDS("example_data/meta.rds")
 print(head(info))
 dataset_name = "" # fill in the name of the dataset
 health =  unlist(lapply(as.character(colnames(df)),function(x){x<-as.character(info[as.character(info$sample) %in% x,]$health)}))
+# if dataset contains batch:
 #batch = unlist(lapply(as.character(colnames(df)),function(x){x<-as.character(info[as.character(info$sample) == x,]$batch)}))
 metadata = as.data.frame(health)
+# if dataset contains batch:
 #metadata$batch = batch
 
 if (!file.exists("dds.rds")){
   #df <- df[index,]
-  dds <- DESeqDataSetFromMatrix(countData = round(df), colData = metadata, design = ~  health)#batch +
+  dds <- DESeqDataSetFromMatrix(countData = round(df), colData = metadata, design = ~  health)
+  # if dataset contains batch:
+  #dds <- DESeqDataSetFromMatrix(countData = round(df), colData = metadata, design = ~  batch + health)
   dds <- dds[rowSums(counts(dds)) > 1, ]
   dds <- estimateSizeFactors(dds)
   dds <- DESeq(dds, betaPrior = FALSE)
