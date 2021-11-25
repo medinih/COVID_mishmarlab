@@ -1,8 +1,9 @@
 # This code receives normalized Seurat annotated object: 
 # before running - object should include the following annotations in metadata:
-# "severity" (with levels: "healthy","moderate","severe"), "infection" (with the levels: "healthy","SARS-CoV-2") and "celltype" annotations.
+# "severity" (with levels: "healthy","moderate","critical"), "infection" (with the levels: "healthy","SARS-CoV-2") and "celltype" annotations.
 # The code compares COVID-19 patients and healthy and all severity levels.
 # output: cell type-specific graphs and differential expression tables.
+.libPaths("/gpfs0/biores/users/mishmarlab/Hadar/R-3.6.1/library")
 
 library(Seurat)
 library(reshape2)
@@ -149,7 +150,7 @@ findallmarkerssample_severity <- function(obtmp,n,n.cells,findmarkerslist,cellty
   # Each iteration applies FindAllMarkers function
   
   Idents(obtmp) = "severity"
-  comparisons = list(c("control","moderate"),c("control","severe"),c("moderate","severe"))
+  comparisons = list(c("control","moderate"),c("control","critical"),c("moderate","critical"))
   dffinal = data.frame(gene=mito.genes)
   for (c in comparisons){
     obtmph<- subset(obtmp,idents=c[1])
@@ -207,13 +208,14 @@ celltype_analysis<-function(rds1,mycellstypes,nametoadd,todobox = T,tofindmitoma
   
   Idents(ob) = "celltype"
   for (celltype in levels(as.factor(ob@meta.data$celltype))){
-  
+    #print(celltype)
+    #print(unique(ob@meta.data$severity))
     cells = WhichCells(ob, idents = celltype)
     obtmp = subset(ob,cells=cells)
     metmp = ob@meta.data[cells,]
     tatmp = as.data.frame(ob@assays$RNA@data[,cells])
     if (length(colnames(tatmp))>300){
-      if (length(rownames(metmp[metmp$severity=="severe",]))>50 &&
+      if (length(rownames(metmp[metmp$severity=="critical",]))>50 &&
           length(rownames(metmp[metmp$severity=="moderate",]))>50 &&
           length(rownames(metmp[metmp$severity=="control",]))>50){
         Idents(obtmp) = "severity"
@@ -263,7 +265,7 @@ celltype_analysis<-function(rds1,mycellstypes,nametoadd,todobox = T,tofindmitoma
 ##############  MAIN  ##################
 
 # upload seurat annotated rds file
-ob = readRDS("obj_with_anno.rds")
+ob = readRDS("example_data/sc_obj.rds")
 dataset_name = "my_dataset" # change according to the dataset name
 
 # upload genes:
@@ -276,10 +278,3 @@ i=0 # number of allowed zeros in mtdna genes per cell.
 celltype_analysis(ob,mycellstypes = levels(as.factor(ob@meta.data$celltype)),nametoadd="") 
 
 ########################################
-
-
-
-
-
-
-
