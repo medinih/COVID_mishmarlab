@@ -6,6 +6,7 @@ library(ggplot2)
 library(openxlsx)
 library(RColorBrewer)
 library(DESeq2)
+library(tidyr)
 
 
 dograph <- function(metadata,matr,name,genes){ 
@@ -101,22 +102,24 @@ dode <- function(d,name,namestotest,listtotest){
 
 
 # upload genes to test
-mito.genes = c("MT-ND1", "MT-ND2", "MT-ND3", "MT-ND4", "MT-ND4L", "MT-ND5", "MT-ND6", "MT-CO1", "MT-CO2", "MT-CO3", "MT-CYB", "MT-ATP6", "MT-ATP8")  
+ad = "genes/"
+mito.genes = c("ND1", "ND2", "ND3", "ND4", "ND4L", "ND5", "ND6", "COX1", "COX2", "COX3", "CYTB", "ATP6", "ATP8")  
 pathways_names =unlist(lapply(list.files(ad,full.names = F),function(x){x<-strsplit(x,"[.]")[[1]][1]}))
 pathways = lapply(list.files(ad,full.names = T),function(x){x<-as.character(read.table(x,header=T)$gene)})
 
 # upload files
-df<- read.table("raw_df.txt",header=TRUE)
-info = read.csv("metadata.csv",header = T)
+df<- readRDS("df.rds")#read.table("raw_df.txt",header=TRUE)
+info = readRDS("meta.rds")
+print(head(info))
 dataset_name = "" # fill in the name of the dataset
 health =  unlist(lapply(as.character(colnames(df)),function(x){x<-as.character(info[as.character(info$sample) %in% x,]$health)}))
-batch = unlist(lapply(as.character(colnames(df)),function(x){x<-as.character(info[as.character(info$sample) == x,]$batch)}))
+#batch = unlist(lapply(as.character(colnames(df)),function(x){x<-as.character(info[as.character(info$sample) == x,]$batch)}))
 metadata = as.data.frame(health)
-metadata$batch = batch
+#metadata$batch = batch
 
 if (!file.exists("dds.rds")){
-  df <- df[index,]
-  dds <- DESeqDataSetFromMatrix(countData = round(df), colData = metadata, design = ~ batch + health)
+  #df <- df[index,]
+  dds <- DESeqDataSetFromMatrix(countData = round(df), colData = metadata, design = ~  health)#batch +
   dds <- dds[rowSums(counts(dds)) > 1, ]
   dds <- estimateSizeFactors(dds)
   dds <- DESeq(dds, betaPrior = FALSE)
@@ -139,4 +142,3 @@ dograph(metadata,normdf,"nuc_reg",c("JUND","JUN","POLRMT"))
 
 # test for differential expressed genes:
 dode(res,"COVID-19",pathways_names,pathways)
-
